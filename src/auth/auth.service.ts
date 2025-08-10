@@ -30,7 +30,7 @@ export class AuthService {
       expiresAt: data.expires_at,
     });
 
-    return { message: 'Connexion Strava réussie', tokens: data };
+    return { athleteId: data.athlete.id };
   }
 
   async profile(athleteId: number) {

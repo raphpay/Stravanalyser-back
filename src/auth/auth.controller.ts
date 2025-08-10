@@ -1,5 +1,9 @@
-import { Controller, Get, Param, Query, Redirect } from '@nestjs/common';
+import { Controller, Get, Param, Query, Redirect, Res } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
+
+dotenv.config();
 
 @Controller('auth')
 export class AuthController {
@@ -12,8 +16,10 @@ export class AuthController {
   }
 
   @Get('callback')
-  async callback(@Query('code') code: string) {
-    return this.authService.callback(code);
+  async callback(@Query('code') code: string, @Res() res: Response) {
+    const { athleteId } = await this.authService.callback(code);
+    const url = `${process.env.FRONT_END_URL}/auth/success/${athleteId}`;
+    res.redirect(url);
   }
 
   @Get('profile/:athleteId')
