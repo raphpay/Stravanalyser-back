@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Redirect } from '@nestjs/common';
+import { Controller, Get, Param, Query, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -16,10 +16,8 @@ export class AuthController {
     return this.authService.callback(code);
   }
 
-  @Get('profile')
-  async profile() {
-    if (!this.authService.tokens) return { error: 'Not connected' };
-
-    return this.authService.profile();
+  @Get('profile/:athleteId')
+  async profile(@Param('athleteId') athleteId: string) {
+    return this.authService.profile(Number(athleteId));
   }
 }

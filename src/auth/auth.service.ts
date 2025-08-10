@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { StravaTokenService } from 'src/strava-tokens/strava-token.service';
 
 @Injectable()
 export class AuthService {
-  tokens: any = {};
+  constructor(private readonly stravaTokenService: StravaTokenService) {}
 
   login(): { url: string } {
     const url = `https://www.strava.com/oauth/authorize?client_id=${process.env.STRAVA_CLIENT_ID}&redirect_uri=${process.env.STRAVA_REDIRECT_URI}&response_type=code&scope=read,activity:read_all`;
@@ -20,30 +19,48 @@ export class AuthService {
       grant_type: 'authorization_code',
     });
 
-    this.tokens = res.data; // { access_token, refresh_token, expires_at, ... }
-    console.log('Tokens reçus:', this.tokens);
-    return { message: 'Connexion Strava réussie', tokens: this.tokens };
+    const data = res.data;
+    console.log('Tokens reçus');
+
+    // Sauvegarde en base via StravaTokenService
+    await this.stravaTokenService.upsertToken({
+      athleteId: data.athlete.id,
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      expiresAt: data.expires_at,
+    });
+
+    return { message: 'Connexion Strava réussie', tokens: data };
   }
 
-  async profile() {
+  async profile(athleteId: number) {
+    let tokens = await this.stravaTokenService.findTokenByAthlete(athleteId);
+    if (!tokens) throw new Error('Aucun token trouvé');
+
     // Rafraîchissement si expiré
-    if (this.tokens.expires_at < Math.floor(Date.now() / 1000)) {
+    if (tokens.expiresAt < Math.floor(Date.now() / 1000)) {
       const refresh = await axios.post('https://www.strava.com/oauth/token', {
         client_id: process.env.STRAVA_CLIENT_ID,
         client_secret: process.env.STRAVA_CLIENT_SECRET,
         grant_type: 'refresh_token',
-        refresh_token: this.tokens.refresh_token,
+        refresh_token: tokens.refreshToken,
       });
-      this.tokens = refresh.data;
+
+      tokens = await this.stravaTokenService.upsertToken({
+        athleteId,
+        accessToken: refresh.data.access_token,
+        refreshToken: refresh.data.refresh_token,
+        expiresAt: refresh.data.expires_at,
+      });
     }
 
-    // Récupération profil Strava
     const profileRes = await axios.get(
       'https://www.strava.com/api/v3/athlete',
       {
-        headers: { Authorization: `Bearer ${this.tokens.access_token}` },
+        headers: { Authorization: `Bearer ${tokens.accessToken}` },
       },
     );
+
     return profileRes.data;
   }
 }
