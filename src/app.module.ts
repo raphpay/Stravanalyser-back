@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ActivitiesController } from './activities/activities.controller';
+import { ActivitiesService } from './activities/activities.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
@@ -29,7 +31,7 @@ import { StravaTokenService } from './strava-tokens/strava-token.service';
     TypeOrmModule.forFeature([StravaTokenEntity]),
     StravaTokenModule,
   ],
-  controllers: [AppController, AuthController],
-  providers: [AppService, AuthService, StravaTokenService],
+  controllers: [AppController, AuthController, ActivitiesController],
+  providers: [AppService, AuthService, StravaTokenService, ActivitiesService],
 })
 export class AppModule {}
