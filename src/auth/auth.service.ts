@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { StravaTokenService } from 'src/strava-tokens/strava-token.service';
+import { StravaTokenService } from '../strava-tokens/strava-token.service';
 
 @Injectable()
 export class AuthService {

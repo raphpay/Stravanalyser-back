@@ -1,13 +1,12 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { StravaTokenService } from 'src/strava-tokens/strava-token.service';
-import { AuthService } from '../auth/auth.service';
+
+import { StravaTokenService } from '../strava-tokens/strava-token.service';
 import { ActivitiesService } from './activities.service';
 
 @Controller('activities')
 export class ActivitiesController {
   constructor(
     private readonly activitiesService: ActivitiesService,
-    private readonly authService: AuthService,
     private readonly stravaTokenService: StravaTokenService,
   ) {}
 
