@@ -8,6 +8,7 @@ export class AuthService {
 
   login(): { url: string } {
     const url = `https://www.strava.com/oauth/authorize?client_id=${process.env.STRAVA_CLIENT_ID}&redirect_uri=${process.env.STRAVA_REDIRECT_URI}&response_type=code&scope=read,activity:read_all`;
+    console.log('Redirect URL Strava:', url);
     return { url };
   }
 
