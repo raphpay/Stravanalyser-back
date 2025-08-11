@@ -6,7 +6,7 @@ export default async function fetchActivities(accessToken: string) {
     'https://www.strava.com/api/v3/athlete/activities',
     {
       headers: { Authorization: `Bearer ${accessToken}` },
-      params: { per_page: 50 }, // tu peux ajuster
+      params: { per_page: 50 },
     },
   );
   return res.data;
